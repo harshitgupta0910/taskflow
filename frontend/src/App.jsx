@@ -13,9 +13,9 @@ import {
   getCurrentUser,
   getProfile,
 } from "./lib/auth";
-import { Sun, Moon } from "lucide-react";
+import { Sun, Moon, Menu, X } from "lucide-react";
 
-const API_URL = "https://taskflow-backend-f361.onrender.com";
+const API_URL = "http://localhost:5000"; 
 
 function App() {
   const [user, setUser] = useState(null);
@@ -34,8 +34,9 @@ function App() {
   const [darkMode, setDarkMode] = useState(
     localStorage.getItem("theme") === "dark"
   );
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  
+  // Dark mode setup
   useEffect(() => {
     if (darkMode) {
       document.documentElement.classList.add("dark");
@@ -46,7 +47,7 @@ function App() {
     }
   }, [darkMode]);
 
-  
+  // Axios instance with JWT token
   const axiosInstance = axios.create();
   axiosInstance.interceptors.request.use((config) => {
     const token = localStorage.getItem("token");
@@ -54,7 +55,7 @@ function App() {
     return config;
   });
 
-  
+  // Init app
   useEffect(() => {
     const initApp = async () => {
       const currentUser = getCurrentUser();
@@ -69,7 +70,6 @@ function App() {
     initApp();
   }, []);
 
-  
   const fetchProfile = async () => {
     try {
       const profile = await getProfile();
@@ -81,7 +81,6 @@ function App() {
     }
   };
 
-  
   const handleLogin = async (credentials) => {
     setAuthLoading(true);
     try {
@@ -116,7 +115,6 @@ function App() {
     setTasks([]);
   };
 
-  
   const fetchTasks = async () => {
     try {
       const res = await axiosInstance.get(`${API_URL}/tasks`);
@@ -168,7 +166,6 @@ function App() {
     }
   };
 
-  
   const handleDeleteClick = (taskId, taskTitle) => {
     setDeleteModal({ isOpen: true, taskId, taskTitle });
   };
@@ -188,7 +185,7 @@ function App() {
     setShowTaskForm(false);
   };
 
-  
+  // Filters
   const filteredTasks = tasks.filter((task) => {
     const matchesSearch = task.title
       .toLowerCase()
@@ -204,7 +201,6 @@ function App() {
     completed: tasks.filter((task) => task.status === "Completed").length,
   };
 
-  
   if (!user)
     return (
       <AuthForm
@@ -229,8 +225,17 @@ function App() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-100 via-pink-50 to-blue-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors duration-500">
-     
-      <div className="absolute top-6 right-2 transform -translate-x-1/2 z-50">
+      {/* Top buttons */}
+      <div className="absolute top-4 right-4 z-50 flex gap-2">
+        {/* Mobile menu */}
+        <button
+          className="lg:hidden p-3 rounded-full shadow-md bg-white dark:bg-gray-700"
+          onClick={() => setSidebarOpen(!sidebarOpen)}
+        >
+          {sidebarOpen ? <X /> : <Menu />}
+        </button>
+
+        {/* Dark mode toggle */}
         <button
           onClick={() => setDarkMode(!darkMode)}
           className="p-3 rounded-full shadow-md bg-white dark:bg-gray-700 hover:scale-105 transition-transform"
@@ -240,12 +245,16 @@ function App() {
       </div>
 
       <div className="flex">
-        
-        <div className="w-80 min-h-screen bg-white/50 dark:bg-gray-800/60 backdrop-blur-lg shadow-xl rounded-r-2xl border-r border-purple-200 dark:border-gray-700">
+        {/* Sidebar */}
+        <div
+          className={`fixed lg:static top-0 left-0 h-full w-72 bg-white/90 dark:bg-gray-800/90 shadow-xl transform transition-transform duration-300 z-40
+          ${sidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}`}
+        >
           <Sidebar
             onAddTask={() => {
               setEditingTask(null);
               setShowTaskForm(true);
+              setSidebarOpen(false); // close on mobile
             }}
             searchTerm={searchTerm}
             onSearchChange={setSearchTerm}
@@ -257,21 +266,26 @@ function App() {
           />
         </div>
 
+        {/* Overlay for mobile */}
+        {sidebarOpen && (
+          <div
+            className="fixed inset-0 bg-black/40 lg:hidden z-30"
+            onClick={() => setSidebarOpen(false)}
+          />
+        )}
 
-        <div className="flex-1 p-8">
-          <div className="max-w-6xl mx-auto">
+        {/* Main Content */}
+        <div className="flex-1 p-4 md:p-6 lg:p-8">
+          <div className="max-w-6xl mx-auto my-14">
             <ProgressBar total={stats.total} completed={stats.completed} />
 
             {filteredTasks.length === 0 ? (
-              <div className="text-center py-16">
-                <div className="bg-white/70 dark:bg-gray-800/60 backdrop-blur-md rounded-3xl shadow-lg p-10 max-w-lg mx-auto">
-                  <div className="w-20 h-20 bg-gradient-to-br from-purple-200 to-pink-200 dark:from-gray-700 dark:to-gray-600 rounded-full flex items-center justify-center mx-auto mb-6 shadow-inner">
-                    <span className="text-3xl">📝</span>
-                  </div>
-                  <h3 className="text-2xl font-bold text-purple-800 dark:text-purple-300 mb-3">
+              <div className="text-center py-10">
+                <div className="bg-white/70 dark:bg-gray-800/60 backdrop-blur-md rounded-2xl shadow-lg p-6 sm:p-10 mx-auto max-w-md">
+                  <h3 className="text-xl sm:text-2xl font-bold text-purple-800 dark:text-purple-300 mb-3">
                     {searchTerm || statusFilter ? "No tasks found" : "No tasks yet"}
                   </h3>
-                  <p className="text-gray-600 dark:text-gray-400 mb-6">
+                  <p className="text-gray-600 dark:text-gray-400 mb-6 text-sm sm:text-base">
                     {searchTerm || statusFilter
                       ? "Try adjusting your search or filter criteria."
                       : "Start your productivity journey by adding your first task!"}
@@ -282,15 +296,15 @@ function App() {
                         setEditingTask(null);
                         setShowTaskForm(true);
                       }}
-                      className="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-8 py-3 rounded-xl shadow-md hover:scale-105 transition-transform"
+                      className="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-6 sm:px-8 py-2 sm:py-3 rounded-xl shadow-md hover:scale-105 transition-transform"
                     >
-                      Add Your First Task
+                      Add Task
                     </button>
                   )}
                 </div>
               </div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
                 {filteredTasks.map((task) => (
                   <TaskCard
                     key={task._id}
@@ -306,7 +320,7 @@ function App() {
         </div>
       </div>
 
-
+      {/* Modals */}
       <TaskForm
         isOpen={showTaskForm}
         onClose={() => {
@@ -316,7 +330,6 @@ function App() {
         onSubmit={handleTaskSubmit}
         task={editingTask}
       />
-
 
       <DeleteModal
         isOpen={deleteModal.isOpen}

@@ -1,6 +1,6 @@
 import { getToken } from "./auth";
 
-const API_URL = "https://taskflow-backend-f361.onrender.com";
+const API_URL = "http://localhost:5000";
 
 export const fetchTasks = async () => {
   const res = await fetch(`${API_URL}/tasks`, {

@@ -18,7 +18,7 @@ const ProgressBar = ({ total, completed }) => {
   };
 
   return (
-    <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl shadow-lg p-6 mb-6 transition hover:shadow-xl w-full max-w-lg mx-auto">
+    <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl shadow-lg p-6 mb-6 transition hover:shadow-xl w-full mx-auto">
      
      
       <div className="flex justify-between items-center mb-4">

@@ -15,7 +15,7 @@ import {
 } from "./lib/auth";
 import { Sun, Moon, Menu, X } from "lucide-react";
 
-const API_URL = "http://localhost:5000"; 
+const API_URL = "https://taskflow-backend-f361.onrender.com";
 
 function App() {
   const [user, setUser] = useState(null);

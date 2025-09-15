@@ -1,7 +1,7 @@
 const TOKEN_KEY = "token";
 const USER_KEY = "user";
 
-const API_URL = "http://localhost:5000";
+const API_URL = "https://taskflow-backend-f361.onrender.com";
 
 
 export const setToken = (token) => localStorage.setItem(TOKEN_KEY, token);

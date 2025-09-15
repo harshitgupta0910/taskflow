@@ -2,7 +2,7 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const User = require("../models/User");
 
-const JWT_SECRET = "mysecretkey123";
+const JWT_SECRET = process.env.JWT_SECRET;
 
 exports.signup = async (req, res) => {
   try {
@@ -30,7 +30,6 @@ exports.signup = async (req, res) => {
   }
 };
 
-
 exports.login = async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -50,7 +49,6 @@ exports.login = async (req, res) => {
     res.status(500).json({ error: "Server error" });
   }
 };
-
 
 exports.profile = async (req, res) => {
   try {
